@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "analytics-sqlite": {
+      "command": "python3",
+      "args": [
+        "src/mcp_server.py"
+      ],
+      "env": {
+        "MCP_DB_PATH": "./data/sales.db"
+      },
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  }
+}

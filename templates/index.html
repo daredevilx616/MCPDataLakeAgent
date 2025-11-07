@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Analytics Agent</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: radial-gradient(circle at top, #151d34 0%, #05070e 70%);
+        color: #f0f4ff;
+      }
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar {
+        width: 320px;
+        background: rgba(10, 15, 30, 0.9);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .sidebar h2 {
+        margin: 0;
+        font-size: 1.3rem;
+      }
+      .sidebar p {
+        margin: 0;
+        color: #a5b4d6;
+        font-size: 0.95rem;
+      }
+      label {
+        font-size: 0.85rem;
+        color: #7ea6ff;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      input[type="text"],
+      textarea,
+      pre {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 23, 42, 0.6);
+        color: #f8fbff;
+        font-size: 0.95rem;
+        padding: 0.65rem 0.8rem;
+      }
+      textarea {
+        min-height: 70px;
+        resize: vertical;
+      }
+      pre {
+        margin: 0;
+        padding: 0.75rem;
+        max-height: 220px;
+        overflow: auto;
+        font-size: 0.8rem;
+      }
+      .button-row {
+        display: flex;
+        gap: 0.5rem;
+      }
+      button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.1s ease, opacity 0.1s ease;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .ghost-button {
+        background: rgba(255, 255, 255, 0.08);
+        color: #d2ddff;
+      }
+      .primary-button {
+        background: linear-gradient(120deg, #5a7bff, #4dd3ff);
+        color: #05070e;
+      }
+      button:not(:disabled):hover {
+        transform: translateY(-1px);
+      }
+      .connector-status {
+        min-height: 1.2rem;
+        font-size: 0.85rem;
+        color: #80ffea;
+      }
+      .chat-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1.5rem;
+      }
+      .chat-panel header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 1rem;
+      }
+      .chat-panel h1 {
+        margin: 0;
+        font-size: 1.8rem;
+      }
+      .chat-log {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-right: 0.5rem;
+      }
+      .message {
+        max-width: 80%;
+        display: flex;
+      }
+      .message.system {
+        align-self: center;
+        max-width: 100%;
+      }
+      .message.user {
+        justify-content: flex-end;
+        align-self: flex-end;
+      }
+      .message.bot {
+        align-self: flex-start;
+      }
+      .bubble {
+        background: rgba(31, 41, 70, 0.75);
+        border-radius: 18px;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        width: fit-content;
+      }
+      .message.user .bubble {
+        background: linear-gradient(120deg, #2563eb, #9333ea);
+        color: #f0f4ff;
+      }
+      .message.system .bubble {
+        background: rgba(255, 255, 255, 0.05);
+        color: #cdd8ff;
+      }
+      .message.bot strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        letter-spacing: 0.02em;
+      }
+      .bubble pre {
+        margin-top: 0.75rem;
+        background: rgba(9, 14, 26, 0.85);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0.75rem;
+      }
+      th, td {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.5rem;
+        font-size: 0.85rem;
+      }
+      .composer {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 1rem;
+      }
+      .composer textarea {
+        flex: 1;
+        min-height: 70px;
+      }
+      .composer button {
+        height: 44px;
+        padding: 0 1.5rem;
+      }
+      @media (max-width: 960px) {
+        .layout {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .chat-panel {
+          padding: 1.5rem;
+        }
+        .message {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <h2>MCP Connector</h2>
+        <p>Point the MCP server to the database you want the agent to query.</p>
+        <div>
+          <label for="db-path">Database Path</label>
+          <input id="db-path" type="text" placeholder="./data/sales.db" />
+        </div>
+        <div class="button-row">
+          <button class="ghost-button" id="refresh-connector">Refresh</button>
+          <button class="primary-button" id="save-connector">Save</button>
+        </div>
+        <div class="connector-status" id="connector-status"></div>
+        <label>mcp.json preview</label>
+        <pre id="connector-preview">Loading...</pre>
+      </aside>
+      <main class="chat-panel">
+        <header>
+          <div>
+            <h1>Analytics Copilot</h1>
+            <p style="margin: 0; color: #94a3c9;">Chat with your data using natural language.</p>
+          </div>
+        </header>
+        <div class="chat-log" id="chat-log"></div>
+        <div class="composer">
+          <textarea id="chat-input" placeholder="Ask about revenue, customers, payments..."></textarea>
+          <button class="primary-button" id="send-button">Send</button>
+        </div>
+      </main>
+    </div>
+    <script>
+      const chatLog = document.getElementById('chat-log');
+      const chatInput = document.getElementById('chat-input');
+      const sendButton = document.getElementById('send-button');
+      const dbPathInput = document.getElementById('db-path');
+      const connectorStatus = document.getElementById('connector-status');
+      const connectorPreview = document.getElementById('connector-preview');
+      const refreshConnectorButton = document.getElementById('refresh-connector');
+      const saveConnectorButton = document.getElementById('save-connector');
+
+      const scrollChatToBottom = () => {
+        requestAnimationFrame(() => {
+          chatLog.scrollTop = chatLog.scrollHeight;
+        });
+      };
+
+      const renderTableElement = (rows = []) => {
+        if (!rows.length) {
+          const empty = document.createElement('p');
+          empty.textContent = '(no rows returned)';
+          empty.style.color = '#a5b4d6';
+          return empty;
+        }
+        const columns = Object.keys(rows[0]);
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        columns.forEach((col) => {
+          const th = document.createElement('th');
+          th.textContent = col;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        const tbody = document.createElement('tbody');
+        rows.forEach((row) => {
+          const tr = document.createElement('tr');
+          columns.forEach((col) => {
+            const td = document.createElement('td');
+            td.textContent = row[col];
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        return table;
+      };
+
+      const appendSystemMessage = (text) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message system';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatLog.appendChild(wrapper);
+        scrollChatToBottom();
+      };
+
+      const appendUserMessage = (text) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message user';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatLog.appendChild(wrapper);
+        scrollChatToBottom();
+      };
+
+      const appendAgentMessage = (payload) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message bot';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+
+        const rationale = document.createElement('p');
+        rationale.style.marginTop = '0';
+        rationale.style.marginBottom = '0.5rem';
+        rationale.textContent = payload.rationale || 'No rationale provided.';
+        bubble.appendChild(rationale);
+
+        const sqlLabel = document.createElement('strong');
+        sqlLabel.textContent = 'Generated SQL';
+        bubble.appendChild(sqlLabel);
+
+        const sqlBlock = document.createElement('pre');
+        sqlBlock.textContent = payload.sql || '(missing sql)';
+        bubble.appendChild(sqlBlock);
+
+        const rowsLabel = document.createElement('strong');
+        const computedCount = typeof payload.row_count === 'number'
+          ? payload.row_count
+          : (Array.isArray(payload.rows) ? payload.rows.length : 0);
+        rowsLabel.textContent = `Rows (${computedCount})`;
+        bubble.appendChild(rowsLabel);
+
+        bubble.appendChild(renderTableElement(payload.rows || []));
+
+        wrapper.appendChild(bubble);
+        chatLog.appendChild(wrapper);
+        scrollChatToBottom();
+      };
+
+      const appendErrorMessage = (text) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message bot';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.style.background = 'rgba(127, 29, 29, 0.7)';
+        bubble.style.border = '1px solid rgba(248, 113, 113, 0.4)';
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatLog.appendChild(wrapper);
+        scrollChatToBottom();
+      };
+
+      const sendQuestion = async () => {
+        const question = chatInput.value.trim();
+        if (!question) {
+          chatInput.focus();
+          return;
+        }
+        appendUserMessage(question);
+        chatInput.value = '';
+        chatInput.disabled = true;
+        sendButton.disabled = true;
+        try {
+          const response = await fetch('/api/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question }),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || 'Unknown error');
+          }
+          appendAgentMessage(payload);
+        } catch (error) {
+          appendErrorMessage(error.message);
+        } finally {
+          chatInput.disabled = false;
+          sendButton.disabled = false;
+          chatInput.focus();
+        }
+      };
+
+      const fetchConnector = async () => {
+        connectorStatus.style.color = '#80ffea';
+        connectorStatus.textContent = 'Loading...';
+        try {
+          const response = await fetch('/api/mcp');
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || 'Unable to load config');
+          }
+          dbPathInput.value = payload.db_path || '';
+          connectorPreview.textContent = JSON.stringify(payload.config, null, 2);
+          connectorStatus.textContent = 'Loaded from mcp.json';
+        } catch (error) {
+          connectorStatus.style.color = '#ff7676';
+          connectorStatus.textContent = error.message;
+          connectorPreview.textContent = 'Unable to load configuration.';
+        }
+      };
+
+      const saveConnector = async () => {
+        const dbPath = dbPathInput.value.trim();
+        if (!dbPath) {
+          connectorStatus.style.color = '#ff7676';
+          connectorStatus.textContent = 'Database path is required.';
+          return;
+        }
+        connectorStatus.style.color = '#80ffea';
+        connectorStatus.textContent = 'Saving...';
+        saveConnectorButton.disabled = true;
+        try {
+          const response = await fetch('/api/mcp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ db_path: dbPath }),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || 'Unable to save configuration');
+          }
+          connectorPreview.textContent = JSON.stringify(payload.config, null, 2);
+          connectorStatus.style.color = '#a0f0c6';
+          connectorStatus.textContent = 'mcp.json updated';
+        } catch (error) {
+          connectorStatus.style.color = '#ff7676';
+          connectorStatus.textContent = error.message;
+        } finally {
+          saveConnectorButton.disabled = false;
+        }
+      };
+
+      sendButton.addEventListener('click', sendQuestion);
+      refreshConnectorButton.addEventListener('click', fetchConnector);
+      saveConnectorButton.addEventListener('click', saveConnector);
+      chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          sendQuestion();
+        }
+      });
+
+      appendSystemMessage('Ready to analyze the sample sales database. Ask me for metrics, segments, or comparisons.');
+      fetchConnector();
+    </script>
+  </body>
+</html>
