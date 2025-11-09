@@ -15,21 +15,64 @@
         margin: 0;
         min-height: 100vh;
         font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        background: radial-gradient(circle at top, #151d34 0%, #05070e 70%);
-        color: #f0f4ff;
+        background: #1f1f24;
+        color: #f5f5f5;
+        display: flex;
       }
-      .layout {
+      .nav-rail {
+        width: 56px;
+        background: #151518;
+        border-right: 1px solid rgba(255, 255, 255, 0.04);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.75rem 0;
+        gap: 0.5rem;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+      .nav-rail button {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        border: none;
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d7defa;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .nav-rail button:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .app-shell {
+        flex: 1;
         display: flex;
         min-height: 100vh;
       }
       .sidebar {
-        width: 320px;
-        background: rgba(10, 15, 30, 0.9);
+        width: 360px;
+        background: rgba(28, 28, 34, 0.96);
         border-right: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 2rem 1.5rem;
+        padding: 1.5rem;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        transition: width 0.25s ease, padding 0.25s ease, opacity 0.25s ease;
+        overflow-y: auto;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+      .sidebar.collapsed {
+        width: 0;
+        padding: 0;
+        opacity: 0;
+        pointer-events: none;
+        border-right: none;
       }
       .sidebar h2 {
         margin: 0;
@@ -37,16 +80,11 @@
       }
       .sidebar p {
         margin: 0;
-        color: #a5b4d6;
+        color: #9da9cc;
         font-size: 0.95rem;
       }
-      label {
-        font-size: 0.85rem;
-        color: #7ea6ff;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      input[type="text"],
+      select,
+      input,
       textarea,
       pre {
         width: 100%;
@@ -57,63 +95,74 @@
         font-size: 0.95rem;
         padding: 0.65rem 0.8rem;
       }
-      textarea {
-        min-height: 70px;
-        resize: vertical;
-      }
-      pre {
-        margin: 0;
-        padding: 0.75rem;
-        max-height: 220px;
-        overflow: auto;
+      label {
         font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6ea8ff;
       }
-      .button-row {
+      .connector-card {
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 1rem;
+        background: rgba(10, 15, 30, 0.75);
         display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      .connector-card header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 0.5rem;
       }
-      button {
+      .connector-card h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .connector-card button {
         border: none;
         border-radius: 999px;
-        padding: 0.6rem 1.2rem;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.1s ease, opacity 0.1s ease;
-      }
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-      .ghost-button {
-        background: rgba(255, 255, 255, 0.08);
-        color: #d2ddff;
-      }
-      .primary-button {
+        padding: 0.4rem 0.9rem;
         background: linear-gradient(120deg, #5a7bff, #4dd3ff);
         color: #05070e;
+        font-weight: 600;
+        cursor: pointer;
       }
-      button:not(:disabled):hover {
-        transform: translateY(-1px);
+      .sidebar small {
+        color: #ff9b8a;
       }
-      .connector-status {
-        min-height: 1.2rem;
-        font-size: 0.85rem;
-        color: #80ffea;
+      details.connector-card summary {
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+      }
+      details.connector-card summary::-webkit-details-marker {
+        display: none;
+      }
+      details.connector-card summary h3 {
+        margin: 0;
       }
       .chat-panel {
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: 2rem;
+        padding: 0;
         gap: 1.5rem;
       }
       .chat-panel header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        padding-bottom: 1rem;
+        padding: 1.5rem 2rem;
+        background: rgba(31, 31, 36, 0.98);
+        backdrop-filter: blur(6px);
       }
       .chat-panel h1 {
         margin: 0;
@@ -125,7 +174,7 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        padding-right: 0.5rem;
+        padding: 0 2rem 0 2rem;
       }
       .message {
         max-width: 80%;
@@ -157,11 +206,6 @@
         background: rgba(255, 255, 255, 0.05);
         color: #cdd8ff;
       }
-      .message.bot strong {
-        display: block;
-        margin-bottom: 0.25rem;
-        letter-spacing: 0.02em;
-      }
       .bubble pre {
         margin-top: 0.75rem;
         background: rgba(9, 14, 26, 0.85);
@@ -171,7 +215,8 @@
         border-collapse: collapse;
         margin-top: 0.75rem;
       }
-      th, td {
+      th,
+      td {
         border: 1px solid rgba(255, 255, 255, 0.08);
         padding: 0.5rem;
         font-size: 0.85rem;
@@ -181,22 +226,42 @@
         gap: 1rem;
         align-items: flex-end;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding-top: 1rem;
+        padding: 1rem 2rem 2rem;
+        position: sticky;
+        bottom: 0;
+        background: rgba(31, 31, 36, 0.95);
+        backdrop-filter: blur(6px);
       }
       .composer textarea {
         flex: 1;
         min-height: 70px;
       }
       .composer button {
+        border: none;
+        border-radius: 999px;
         height: 44px;
         padding: 0 1.5rem;
+        background: linear-gradient(120deg, #5a7bff, #4dd3ff);
+        color: #05070e;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
       }
-      @media (max-width: 960px) {
-        .layout {
+      @media (max-width: 1100px) {
+        body {
+          flex-direction: column;
+        }
+        .nav-rail {
+          flex-direction: row;
+          width: 100%;
+          justify-content: center;
+        }
+        .app-shell {
           flex-direction: column;
         }
         .sidebar {
           width: 100%;
+          transform: none !important;
           border-right: none;
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -210,45 +275,213 @@
     </style>
   </head>
   <body>
-    <div class="layout">
-      <aside class="sidebar">
-        <h2>MCP Connector</h2>
-        <p>Point the MCP server to the database you want the agent to query.</p>
+    <nav class="nav-rail">
+      <button title="Toggle connectors" id="toggle-sidebar">☰</button>
+    </nav>
+    <div class="app-shell" id="app-shell">
+      <aside class="sidebar" id="connector-panel">
         <div>
-          <label for="db-path">Database Path</label>
-          <input id="db-path" type="text" placeholder="./data/sales.db" />
+          <h2>Database Connectors</h2>
+          <p>Configure multiple backends for the MCP agent.</p>
         </div>
-        <div class="button-row">
-          <button class="ghost-button" id="refresh-connector">Refresh</button>
-          <button class="primary-button" id="save-connector">Save</button>
+        <div>
+          <label for="active-db">Active Database</label>
+          <select id="active-db">
+            <option value="sqlite">SQLite</option>
+            <option value="postgresql">PostgreSQL</option>
+            <option value="mysql">MySQL</option>
+            <option value="mssql">MS SQL Server</option>
+            <option value="mongodb">MongoDB</option>
+          </select>
         </div>
-        <div class="connector-status" id="connector-status"></div>
-        <label>mcp.json preview</label>
-        <pre id="connector-preview">Loading...</pre>
+        <details class="connector-card" open>
+          <summary>
+            <h3>SQLite</h3>
+            <button type="button" class="connector-save" data-target="sqlite">Save</button>
+          </summary>
+          <label for="sqlite-path">Database Path</label>
+          <input id="sqlite-path" type="text" placeholder="./data/sales.db" />
+        </details>
+        <details class="connector-card">
+          <summary>
+            <h3>PostgreSQL</h3>
+            <button type="button" class="connector-save" data-target="postgresql">Save</button>
+          </summary>
+          <label for="pg-host">Host</label>
+          <input id="pg-host" type="text" placeholder="localhost" />
+          <label for="pg-port">Port</label>
+          <input id="pg-port" type="text" placeholder="5432" />
+          <label for="pg-database">Database</label>
+          <input id="pg-database" type="text" />
+          <label for="pg-username">Username</label>
+          <input id="pg-username" type="text" />
+          <label for="pg-password">Password</label>
+          <input id="pg-password" type="password" />
+        </details>
+        <details class="connector-card">
+          <summary>
+            <h3>MySQL</h3>
+            <button type="button" class="connector-save" data-target="mysql">Save</button>
+          </summary>
+          <label for="mysql-host">Host</label>
+          <input id="mysql-host" type="text" placeholder="localhost" />
+          <label for="mysql-port">Port</label>
+          <input id="mysql-port" type="text" placeholder="3306" />
+          <label for="mysql-database">Database</label>
+          <input id="mysql-database" type="text" />
+          <label for="mysql-username">Username</label>
+          <input id="mysql-username" type="text" />
+          <label for="mysql-password">Password</label>
+          <input id="mysql-password" type="password" />
+        </details>
+        <details class="connector-card">
+          <summary>
+            <h3>MS SQL Server</h3>
+            <button type="button" class="connector-save" data-target="mssql">Save</button>
+          </summary>
+          <label for="mssql-server">Server</label>
+          <input id="mssql-server" type="text" placeholder="your_server_name" />
+          <label for="mssql-database">Database</label>
+          <input id="mssql-database" type="text" placeholder="your_database_name" />
+          <label for="mssql-username">Username</label>
+          <input id="mssql-username" type="text" placeholder="your_username" />
+          <label for="mssql-password">Password</label>
+          <input id="mssql-password" type="password" placeholder="your_password" />
+        </details>
+        <details class="connector-card">
+          <summary>
+            <h3>MongoDB</h3>
+            <button type="button" class="connector-save" data-target="mongodb">Save</button>
+          </summary>
+          <label for="mongo-uri">Connection URI</label>
+          <input id="mongo-uri" type="text" placeholder="mongodb+srv://..." />
+          <label for="mongo-database">Database</label>
+          <input id="mongo-database" type="text" />
+          <label for="mongo-collection">Collection</label>
+          <input id="mongo-collection" type="text" />
+        </details>
+        <small id="connector-status"></small>
       </aside>
       <main class="chat-panel">
         <header>
           <div>
             <h1>Analytics Copilot</h1>
-            <p style="margin: 0; color: #94a3c9;">Chat with your data using natural language.</p>
+            <p style="margin: 0; color: #94a3c9;">Chat with your governed data lake.</p>
           </div>
         </header>
         <div class="chat-log" id="chat-log"></div>
         <div class="composer">
           <textarea id="chat-input" placeholder="Ask about revenue, customers, payments..."></textarea>
-          <button class="primary-button" id="send-button">Send</button>
+          <button id="send-button">Send</button>
         </div>
       </main>
     </div>
     <script>
+      const connectorPanel = document.getElementById('connector-panel');
+      const toggleSidebarButton = document.getElementById('toggle-sidebar');
+      const connectorStatus = document.getElementById('connector-status');
+      const connectorButtons = document.querySelectorAll('.connector-save');
+      const activeDbSelect = document.getElementById('active-db');
+
+      const connectorInputs = {
+        sqlite: {
+          path: document.getElementById('sqlite-path'),
+        },
+        postgresql: {
+          host: document.getElementById('pg-host'),
+          port: document.getElementById('pg-port'),
+          database: document.getElementById('pg-database'),
+          username: document.getElementById('pg-username'),
+          password: document.getElementById('pg-password'),
+        },
+        mysql: {
+          host: document.getElementById('mysql-host'),
+          port: document.getElementById('mysql-port'),
+          database: document.getElementById('mysql-database'),
+          username: document.getElementById('mysql-username'),
+          password: document.getElementById('mysql-password'),
+        },
+        mssql: {
+          server: document.getElementById('mssql-server'),
+          database: document.getElementById('mssql-database'),
+          username: document.getElementById('mssql-username'),
+          password: document.getElementById('mssql-password'),
+        },
+        mongodb: {
+          uri: document.getElementById('mongo-uri'),
+          database: document.getElementById('mongo-database'),
+          collection: document.getElementById('mongo-collection'),
+        },
+      };
+
+      const readConnectorPayload = () => {
+        const payload = { active: activeDbSelect.value };
+        Object.entries(connectorInputs).forEach(([key, fields]) => {
+          payload[key] = {};
+          Object.entries(fields).forEach(([field, input]) => {
+            payload[key][field] = input.value.trim();
+          });
+        });
+        return payload;
+      };
+
+      const populateConnectorForm = (data) => {
+        if (!data) return;
+        activeDbSelect.value = data.active || 'sqlite';
+        Object.entries(connectorInputs).forEach(([key, fields]) => {
+          const section = data[key] || {};
+          Object.entries(fields).forEach(([field, input]) => {
+            input.value = section[field] || '';
+          });
+        });
+      };
+
+      const fetchConnectors = async () => {
+        connectorStatus.textContent = 'Loading connectors...';
+        connectorStatus.style.color = '#80ffea';
+        try {
+          const res = await fetch('/api/connectors');
+          const payload = await res.json();
+          if (!res.ok) throw new Error(payload.error || 'Unable to load connectors');
+          populateConnectorForm(payload);
+          connectorStatus.textContent = 'Connectors loaded';
+          connectorStatus.style.color = '#80ffea';
+        } catch (error) {
+          connectorStatus.textContent = error.message;
+          connectorStatus.style.color = '#ff8585';
+        }
+      };
+
+      const saveConnectors = async () => {
+        connectorStatus.textContent = 'Saving connectors...';
+        connectorStatus.style.color = '#80ffea';
+        try {
+          const res = await fetch('/api/connectors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(readConnectorPayload()),
+          });
+          const payload = await res.json();
+          if (!res.ok) throw new Error(payload.error || 'Unable to save connectors');
+          populateConnectorForm(payload);
+          connectorStatus.textContent = 'Connector settings saved';
+          connectorStatus.style.color = '#a0f0c6';
+        } catch (error) {
+          connectorStatus.textContent = error.message;
+          connectorStatus.style.color = '#ff8585';
+        }
+      };
+
+      connectorButtons.forEach((button) => {
+        button.addEventListener('click', saveConnectors);
+      });
+      toggleSidebarButton.addEventListener('click', () => {
+        connectorPanel.classList.toggle('collapsed');
+      });
+
       const chatLog = document.getElementById('chat-log');
       const chatInput = document.getElementById('chat-input');
       const sendButton = document.getElementById('send-button');
-      const dbPathInput = document.getElementById('db-path');
-      const connectorStatus = document.getElementById('connector-status');
-      const connectorPreview = document.getElementById('connector-preview');
-      const refreshConnectorButton = document.getElementById('refresh-connector');
-      const saveConnectorButton = document.getElementById('save-connector');
 
       const scrollChatToBottom = () => {
         requestAnimationFrame(() => {
@@ -330,14 +563,23 @@
         sqlBlock.textContent = payload.sql || '(missing sql)';
         bubble.appendChild(sqlBlock);
 
-        const rowsLabel = document.createElement('strong');
-        const computedCount = typeof payload.row_count === 'number'
-          ? payload.row_count
-          : (Array.isArray(payload.rows) ? payload.rows.length : 0);
-        rowsLabel.textContent = `Rows (${computedCount})`;
-        bubble.appendChild(rowsLabel);
+        const resultSets = payload.result_sets && payload.result_sets.length
+          ? payload.result_sets
+          : [{
+            statement: payload.sql,
+            rows: payload.rows || [],
+            row_count: payload.row_count ?? (Array.isArray(payload.rows) ? payload.rows.length : 0),
+          }];
 
-        bubble.appendChild(renderTableElement(payload.rows || []));
+        resultSets.forEach((set, idx) => {
+          const rowsLabel = document.createElement('strong');
+          rowsLabel.textContent = `Result ${idx + 1} (${set.row_count ?? (set.rows?.length || 0)} rows)`;
+          bubble.appendChild(rowsLabel);
+          const stmtPre = document.createElement('pre');
+          stmtPre.textContent = set.statement;
+          bubble.appendChild(stmtPre);
+          bubble.appendChild(renderTableElement(set.rows || []));
+        });
 
         wrapper.appendChild(bubble);
         chatLog.appendChild(wrapper);
@@ -387,59 +629,7 @@
         }
       };
 
-      const fetchConnector = async () => {
-        connectorStatus.style.color = '#80ffea';
-        connectorStatus.textContent = 'Loading...';
-        try {
-          const response = await fetch('/api/mcp');
-          const payload = await response.json();
-          if (!response.ok) {
-            throw new Error(payload.error || 'Unable to load config');
-          }
-          dbPathInput.value = payload.db_path || '';
-          connectorPreview.textContent = JSON.stringify(payload.config, null, 2);
-          connectorStatus.textContent = 'Loaded from mcp.json';
-        } catch (error) {
-          connectorStatus.style.color = '#ff7676';
-          connectorStatus.textContent = error.message;
-          connectorPreview.textContent = 'Unable to load configuration.';
-        }
-      };
-
-      const saveConnector = async () => {
-        const dbPath = dbPathInput.value.trim();
-        if (!dbPath) {
-          connectorStatus.style.color = '#ff7676';
-          connectorStatus.textContent = 'Database path is required.';
-          return;
-        }
-        connectorStatus.style.color = '#80ffea';
-        connectorStatus.textContent = 'Saving...';
-        saveConnectorButton.disabled = true;
-        try {
-          const response = await fetch('/api/mcp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ db_path: dbPath }),
-          });
-          const payload = await response.json();
-          if (!response.ok) {
-            throw new Error(payload.error || 'Unable to save configuration');
-          }
-          connectorPreview.textContent = JSON.stringify(payload.config, null, 2);
-          connectorStatus.style.color = '#a0f0c6';
-          connectorStatus.textContent = 'mcp.json updated';
-        } catch (error) {
-          connectorStatus.style.color = '#ff7676';
-          connectorStatus.textContent = error.message;
-        } finally {
-          saveConnectorButton.disabled = false;
-        }
-      };
-
       sendButton.addEventListener('click', sendQuestion);
-      refreshConnectorButton.addEventListener('click', fetchConnector);
-      saveConnectorButton.addEventListener('click', saveConnector);
       chatInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
           event.preventDefault();
@@ -447,8 +637,8 @@
         }
       });
 
-      appendSystemMessage('Ready to analyze the sample sales database. Ask me for metrics, segments, or comparisons.');
-      fetchConnector();
+      appendSystemMessage('Ready to analyze the sample sales database. Configure connectors and ask questions.');
+      fetchConnectors();
     </script>
   </body>
 </html>

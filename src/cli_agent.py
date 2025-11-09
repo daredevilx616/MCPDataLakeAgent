@@ -27,18 +27,21 @@ def handle_question(question: str, conn: sqlite3.Connection, schema: str, client
     response = generate_sql(question, schema, client)
     sql = response.get("sql", "").strip()
     rationale = response.get("rationale", "").strip()
+    result_sets = response.get("result_sets") or []
     if not sql:
         raise RuntimeError("Model response missing SQL")
     print("\n--- Generated SQL ---\n" + sql)
     if rationale:
         print("\n--- Rationale ---\n" + rationale)
     try:
-        results, count = execute_sql(conn, sql)
+        if not result_sets:
+            result_sets = execute_sql(conn, sql)
     except sqlite3.DatabaseError as err:
         print(f"\nQuery failed: {err}")
         return
-    print(f"\n--- Results ({count} rows) ---")
-    print(tabulate(results))
+    for idx, result in enumerate(result_sets, start=1):
+        print(f"\n--- Result Set {idx} ({result.get('row_count', 0)} rows) ---")
+        print(tabulate(result.get("rows", [])))
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Terminal BI agent powered by OpenAI")

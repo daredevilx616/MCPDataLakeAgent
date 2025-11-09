@@ -40,7 +40,11 @@ The server defaults to stdio transport and the database path from `MCP_DB_PATH` 
 
 Exposed tools:
 - `describe_schema()` – returns table/column metadata so the agent can ground itself.
-- `run_sql(query)` – executes read-only SELECT/CTE statements; basic guardrails block mutations.
+- `run_sql(query)` – executes read-only SELECT/CTE statements.
+- `create_table(schema_sql)` – runs raw DDL statements so you can spin up new tables based on an input schema.
+- `insert_row(table, values)` – insert one row provided as a JSON object.
+- `update_rows(table, updates, where_clause, params)` – update data with a simple WHERE filter.
+- `delete_rows(table, where_clause, params)` – delete rows with a simple WHERE filter.
 
 ## Web UI
 
@@ -51,7 +55,12 @@ Prefer a browser flow? Fire up the Flask app:
 python3 src/web_app.py
 ```
 
-Then open `http://127.0.0.1:5000` and drop questions into the textbox. The page calls the same agent pipeline, showing generated SQL, rationale, and tabular results. The Flask app also reads `.env`, so keep that file present locally (it’s gitignored).
+Then open `http://127.0.0.1:5000`. The dark-themed page now includes:
+- A left nav rail to toggle the connector drawer
+- Multi-database connector forms (SQLite, PostgreSQL, MySQL, MS SQL, MongoDB) plus an “active DB” selector
+- A chat workspace that mirrors the CLI output (generated SQL, rationale, tabular rows)
+
+Connector changes are written locally to `connectors.json` (gitignored) and mirrored into `mcp.json` so MCP-aware clients stay aligned. The Flask app also reads `.env`, so keep that file present locally.
 
 ## Wiring an OpenAI agent to the MCP server
 

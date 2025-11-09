@@ -4,6 +4,7 @@ import json
 import os
 import sqlite3
 from pathlib import Path
+
 from typing import Any, List, Sequence
 
 from datetime import date, timedelta
@@ -15,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "data" / "sales.db"
 DEFAULT_MODEL = "gpt-4o-mini"
 
-load_dotenv()
+load_dotenv(BASE_DIR / ".env")
 
 
 def get_model_name() -> str:
@@ -80,12 +81,51 @@ def generate_sql(question: str, schema: str, client: OpenAI) -> dict[str, Any]:
     return json.loads(content)
 
 
-def execute_sql(conn: sqlite3.Connection, sql: str) -> tuple[List[dict[str, Any]], int]:
+def split_statements(sql: str) -> list[str]:
+    statements: list[str] = []
+    buffer = ""
+    for char in sql:
+        buffer += char
+        if sqlite3.complete_statement(buffer):
+            candidate = buffer.strip()
+            if candidate:
+                statements.append(candidate.rstrip(";"))
+            buffer = ""
+    if buffer.strip():
+        statements.append(buffer.strip().rstrip(";"))
+    return statements
+
+
+def execute_sql(conn: sqlite3.Connection, sql: str) -> list[dict[str, Any]]:
     cursor = conn.cursor()
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-    results = rows_to_dicts(cursor, rows)
-    return results, len(rows)
+    statements = split_statements(sql)
+    if not statements:
+        raise RuntimeError("No SQL to execute.")
+    result_sets: list[dict[str, Any]] = []
+    for statement in statements:
+        normalized = statement.lstrip().lower()
+        cursor.execute(statement)
+        if normalized.startswith(("select", "with", "pragma", "explain")):
+            rows = cursor.fetchall()
+            result_sets.append(
+                {
+                    "statement": statement,
+                    "rows": rows_to_dicts(cursor, rows),
+                    "row_count": len(rows),
+                }
+            )
+        else:
+            conn.commit()
+            result_sets.append(
+                {
+                    "statement": statement,
+                    "rows": [],
+                    "row_count": cursor.rowcount if cursor.rowcount is not None else 0,
+                }
+            )
+    if not result_sets:
+        result_sets.append({"statement": statements[-1], "rows": [], "row_count": 0})
+    return result_sets
 
 
 def answer_question(question: str) -> dict[str, Any]:
@@ -98,12 +138,10 @@ def answer_question(question: str) -> dict[str, Any]:
         rationale = response.get("rationale", "").strip()
         if not sql:
             raise RuntimeError("Model response missing SQL")
-        results, count = execute_sql(conn, sql)
         return {
             "sql": sql,
             "rationale": rationale,
-            "rows": results,
-            "row_count": count,
+            "result_sets": execute_sql(conn, sql),
         }
     finally:
         conn.close()

@@ -1,4 +1,5 @@
 .env
 data/*.db
+connectors*.json
 __pycache__/
 *.pyc

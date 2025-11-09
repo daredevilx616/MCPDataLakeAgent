@@ -6,7 +6,26 @@
         "src/mcp_server.py"
       ],
       "env": {
-        "MCP_DB_PATH": "./data/sales.db"
+        "MCP_DB_PATH": "./data/sales.db",
+        "ACTIVE_DB": "sqlite",
+        "SQLITE_PATH": "./data/sales.db",
+        "POSTGRESQL_HOST": "",
+        "POSTGRESQL_PORT": "5432",
+        "POSTGRESQL_DATABASE": "",
+        "POSTGRESQL_USERNAME": "",
+        "POSTGRESQL_PASSWORD": "",
+        "MYSQL_HOST": "",
+        "MYSQL_PORT": "3306",
+        "MYSQL_DATABASE": "",
+        "MYSQL_USERNAME": "",
+        "MYSQL_PASSWORD": "",
+        "MSSQL_SERVER": "",
+        "MSSQL_DATABASE": "",
+        "MSSQL_USERNAME": "",
+        "MSSQL_PASSWORD": "",
+        "MONGODB_URI": "",
+        "MONGODB_DATABASE": "",
+        "MONGODB_COLLECTION": ""
       },
       "transport": {
         "type": "stdio"
