@@ -13,11 +13,27 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "data" / "sales.db"
 DEFAULT_MODEL = "gpt-4o-mini"
 
 load_dotenv(BASE_DIR / ".env")
 
+
+def resolve_db_path() -> Path:
+    mcp_config = BASE_DIR / "mcp.json"
+    if mcp_config.exists():
+        try:
+            data = json.loads(mcp_config.read_text())
+            server = data.get("mcpServers", {}).get("analytics-sqlite", {})
+            env = server.get("env", {})
+            candidate = env.get("MCP_DB_PATH")
+            if candidate:
+                path = Path(candidate)
+                if not path.is_absolute():
+                    path = (BASE_DIR / path).resolve()
+                return path
+        except json.JSONDecodeError:
+            pass
+    return (BASE_DIR / "data" / "sales.db").resolve()
 
 def get_model_name() -> str:
     return os.environ.get("OPENAI_MODEL", DEFAULT_MODEL)
@@ -30,7 +46,7 @@ def create_client() -> OpenAI:
 
 
 def get_connection() -> sqlite3.Connection:
-    return sqlite3.connect(DB_PATH)
+    return sqlite3.connect(resolve_db_path())
 
 
 def format_schema(cursor: sqlite3.Cursor) -> str:

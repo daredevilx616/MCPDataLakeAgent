@@ -1,10 +1,9 @@
-# Terminal BI Agent with MCP + SQLite
+# MCP Data Lake Copilot
 
-This repo wires up three pieces so you can iterate locally:
+This repo centers on two pieces so you can iterate locally:
 
-1. **SQLite analytics lake** – lightweight schema with customers, products, orders, and payments (see `src/db_setup.py`).
-2. **Terminal AI agent** – `src/cli_agent.py` turns natural-language questions into SQL via OpenAI, executes the query, and prints the result set.
-3. **Local MCP server** – `src/mcp_server.py` exposes read-only tools (`describe_schema`, `run_sql`) that point at the same SQLite file. `mcp.json` wires it up with stdio transport so any MCP-compatible client can attach.
+1. **SQLite analytics lake** – bundled sample data (customers, products, orders, payments) stored at `data/sales.db`.
+2. **Local MCP server + web UI** – `src/mcp_server.py` exposes tools for schema inspection, querying, and mutations, while `src/web_app.py` provides the sticky chat interface with multi-database connector controls.
 
 ## Quick start
 
@@ -16,17 +15,12 @@ python3 -m pip install --user --break-system-packages openai mcp flask python-do
 cp .env.example .env
 # edit .env with your OpenAI key and optional default model
 
-# 3. (Re)build the sample DB
-python3 src/db_setup.py
-
-# 4. Ask questions from the terminal
-python3 src/cli_agent.py "What were total Q4 revenues by region?"
-# or start an interactive loop
-python3 src/cli_agent.py
+# 3. Launch the browser experience
+python3 src/web_app.py
 ```
 
 Notes:
-- The agent reads the schema before the first call and instructs the model to return JSON with `sql` and `rationale`. Results are rendered in a simple ASCII table.
+- The agent reads the schema before the first call and instructs the model to return JSON with `sql` and `rationale`. Results appear in the chat bubble with tables and multi-statement blocks.
 - Set `OPENAI_MODEL` if you want something other than `gpt-4o-mini`.
 
 ## Running the MCP server
@@ -48,14 +42,7 @@ Exposed tools:
 
 ## Web UI
 
-Prefer a browser flow? Fire up the Flask app:
-
-```bash
-# from the repo root
-python3 src/web_app.py
-```
-
-Then open `http://127.0.0.1:5000`. The dark-themed page now includes:
+Open `http://127.0.0.1:5000` once Flask is running. The dark-themed page includes:
 - A left nav rail to toggle the connector drawer
 - Multi-database connector forms (SQLite, PostgreSQL, MySQL, MS SQL, MongoDB) plus an “active DB” selector
 - A chat workspace that mirrors the CLI output (generated SQL, rationale, tabular rows)
@@ -64,8 +51,7 @@ Connector changes are written locally to `connectors.json` (gitignored) and mirr
 
 ## Wiring an OpenAI agent to the MCP server
 
-1. Use the CLI agent for turnkey experimentation, or
-2. Configure an OpenAI "Models" agent (Assistants API or Responses API with MCP support) and pass `mcp.json` in your IDE/tooling so the agent can call `analytics-sqlite`.
+Configure an OpenAI "Models" agent (Assistants API or Responses API with MCP support) and pass `mcp.json` in your IDE/tooling so the agent can call `analytics-sqlite`.
 
 At runtime, the AI agent can:
 - call `describe_schema` to scope available tables,
