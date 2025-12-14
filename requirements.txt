@@ -1,0 +1,16 @@
+# MCP Data Lake Agent - Dependencies
+# Core dependencies for the MCP server and web application
+
+# OpenAI API for LLM integration
+openai>=1.0.0
+
+# MCP (Model Context Protocol) framework
+mcp>=0.9.0
+
+# Flask web framework for the UI
+Flask>=3.0.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Note: SQLite comes bundled with Python, no separate installation needed

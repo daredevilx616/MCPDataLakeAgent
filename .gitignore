@@ -1,5 +1,66 @@
+# Environment variables and secrets
 .env
-data/*.db
+.env.local
+
+# Database connectors (may contain sensitive info)
 connectors*.json
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Database backups
+*.db.backup
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution
+.dist/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
